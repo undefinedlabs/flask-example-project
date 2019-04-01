@@ -1,0 +1,11 @@
+version: 2.1
+
+orbs:
+  docker-publish: circleci/docker-publish@0.1.4
+
+workflows:
+  build:
+    jobs:
+      - docker-publish/publish:
+          image: codescope/flask-example-project
+          tag: ${CIRCLE_BRANCH}
