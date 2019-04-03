@@ -5,6 +5,7 @@ from uuid import UUID
 from flask import Flask, jsonify
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
