@@ -31,9 +31,11 @@ def hello():
 def car(car_uuid):
     logger.info("Received request to %s car information for car '%s'", request.method, car_uuid)
     if request.method == 'GET':
+        logger.debug("Querying DB for car with uuid=%s", car_uuid)
         obj = Car.query.get(uuid.UUID(car_uuid))
         if not obj:
             abort(404)
+        logger.debug("Found a matching car for %s with coordinates: lat=%f lon=%f", car_uuid, obj.lat, obj.lon)
         return jsonify({
             'uuid': str(obj.uuid),
             'lat': obj.lat,
