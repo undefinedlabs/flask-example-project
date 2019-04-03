@@ -1,13 +1,26 @@
-import logging
 import os
 import uuid
+from logging.config import dictConfig
 
 from flask import Flask, jsonify, request, abort
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://flask.logging.wsgi_errors_stream',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['wsgi']
+    }
+})
 
 app = Flask(__name__)
 DB_URL = os.getenv('SQLALCHEMY_DATABASE_URI')
@@ -29,13 +42,13 @@ def hello():
 
 @app.route("/car/<car_uuid>", methods=['GET', 'PUT'])
 def car(car_uuid):
-    logger.info("Received request to %s car information for car '%s'", request.method, car_uuid)
+    app.logger.info("Received request to %s car information for car '%s'", request.method, car_uuid)
     if request.method == 'GET':
-        logger.debug("Querying DB for car with uuid=%s", car_uuid)
+        app.logger.debug("Querying DB for car with uuid=%s", car_uuid)
         obj = Car.query.get(uuid.UUID(car_uuid))
         if not obj:
             abort(404)
-        logger.debug("Found a matching car for %s with coordinates: lat=%f lon=%f", car_uuid, obj.lat, obj.lon)
+        app.logger.debug("Found a matching car for %s with coordinates: lat=%f lon=%f", car_uuid, obj.lat, obj.lon)
         return jsonify({
             'uuid': str(obj.uuid),
             'lat': obj.lat,
